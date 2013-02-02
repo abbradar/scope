@@ -1,0 +1,142 @@
+PCSGU250 oscilloscope control via USB bus
+
+Scope setting takes place by means of a single 10 bytes packet.
+
+The command begins with these three bytes: 0E 80 07
+0E = load setting
+80 = scope setting command
+07 = number of bytes to send
+
+Then, there will be seven control bytes:
+byte 1 = volt_div_ch1 + DC_coupling1 + GND_coupling1 * 16
+byte 2 = volt_div_ch2 + DC_coupling2 + GND_coupling2 * 16
+byte 3 = y-position_ch1
+byte 4 = y-position_ch2
+byte 5 = trigg_level
+byte 6 = time_div
+byte 7 = trg_ch + 2*no_trg + 4*neg_trg + 8*digi_on
+
+volt_div_ch1
+volt_div_ch2
+byte
+22 = 10 mV/div
+02 = 30 mV/div
+24 = 0.1 V/div
+04 = 0.3 V/div
+28 = 1 V/div
+08 = 3 V/div
+
+DC_coupling1
+DC_coupling2
+bit
+0 = AC coupling
+1 = DC coupling
+
+GND_coupling1
+GND_coupling2
+bit
+0 = GND coupling Off
+1 = GND coupling On
+
+y-position_ch1
+y-position_ch2
+byte
+00 = max position
+F7 = min position
+78(about) = Middle position according to the calibration data:
+CH1 offset at 3V/div
+CH2 offset at 3V/div
+
+trigg_level
+byte
+00 = low
+7F = middle
+FF = high
+
+time_div
+byte Time/div sample_rate
+C1 = 500 ms/div 12.5 MHz /50000
+C2 = 200 ms/div 12.5 MHz /20000
+E0 = 100 ms/div 12.5 MHz /10000
+E1 = 50 ms/div 12.5 MHz /5000
+E2 = 20 ms/div 12.5 MHz /2000
+F0 = 10 ms/div 12.5 MHz /1000
+F1 = 5 ms/div 12.5 MHz /500
+F2 = 2 ms/div 12.5 MHz /200
+F8 = 1 ms/div 12.5 MHz /100
+F9 = 0.5 ms/div 12.5 MHz /50
+FA = 0.2 ms/div 12.5 MHz /20
+FC = 0.1 ms/div 12.5 MHz /10
+FD = 50 us/div 12.5 MHz /5
+FE = 20 us/div 12.5 MHz /2
+80 = 10 us/div 12.5 MHz
+40 = 5 us/div 25 MHz
+
+trg_ch
+bit
+0 = Trigger source CH1
+1 = Trigger source CH2
+
+no_trg
+bit
+0 = Trigger Off
+1 = Trigger On
+
+neg_trg
+bit
+0 = Trigger edge Up
+1 = Trigger edge Down
+
+digi_on
+bit
+0 = Digital display mode Off
+1 = Digital display mode On
+
+e.g.
+This sequence will set scope to its initial state: 0E 80 07 29 29 76 75 7F F8 00
+Volts/div = 1V (ch1 and ch2)
+Time/div = 1ms
+Y-position = middle
+Trigger level = middle
+Trigger = off
+Source = Ch1
+Edge = positive
+
+Reading data
+
+First, byte 09 and then 0B is transmitted:
+byte
+09 = reset scope
+0B = waiting for trigger
+
+After then, characters are read one at a time:
+1. Scope repeatedly transmits byte 4E ("N") until the trigger occurs
+2. When trigger occurs and scope has read data into its memory, it sends byte 44 ("D")
+3. After than scope sends byte 0A, after which it sends 8192 bytes of data.
+Data is read one by one.
+The first byte is the channel 2 data, the second byte is the channel 1 data etc.
+
+Function Transient Recorder mode
+Setting
+no_trg
+bit
+0 = Trigger Off
+time_div
+byte Time/div sample_rate
+80 = 10 us/div 12.5 MHz
+
+Scope setting example: 0E 80 07 29 29 77 75 7F 02 00
+Important bytes are 80 and the last (00)
+
+Next, send byte 09 and the 0B:
+09 = reset scope
+0B = waiting for trigger (trigger off, so the data is coming soon)
+
+Then characters from scope are read one at a time until a 44 ("D")
+After this scope sends character 0A, after which it sends 8192 bytes of data.
+Data is read one by one, this data is not used for anything.
+
+Next, send 0C to scope.
+This puts the scope into a state where it will send a 64-character data, and then a reset and new data transmission.
+Byte 0C is sent to a software timer control, to provide the desired number of samples, unit of time.
+
