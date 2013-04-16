@@ -1,4 +1,16 @@
-PCSGU250 oscilloscope control via USB bus
+# PCSGU250 oscilloscope control via USB bus
+
+## USB id
+idVendor 0x10cf (Velleman Components, Inc.)
+idProduct 0x2501
+
+## Loading the firmware
+First, byte 08 should be sent, then 54912 bytes of firmware.
+
+## Checking formware version
+Send byte 0F, then receive string like "31 2E 30 31 0D" ("1.01\r")
+
+# Scope setting
 
 Scope setting takes place by means of a single 10 bytes packet.
 
@@ -102,8 +114,7 @@ Trigger = off
 Source = Ch1
 Edge = positive
 
-Reading data
-
+## Reading data
 First, byte 09 and then 0B is transmitted:
 byte
 09 = reset scope
@@ -112,31 +123,158 @@ byte
 After then, characters are read one at a time:
 1. Scope repeatedly transmits byte 4E ("N") until the trigger occurs
 2. When trigger occurs and scope has read data into its memory, it sends byte 44 ("D")
-3. After than scope sends byte 0A, after which it sends 8192 bytes of data.
+3. After this send to scope byte 0A, after which it sends 8192 bytes of data.
 Data is read one by one.
 The first byte is the channel 2 data, the second byte is the channel 1 data etc.
+After that, send 0B again and repeat process.
 
-Function Transient Recorder mode
+## Function Transient Recorder mode
 Setting
 no_trg
 bit
 0 = Trigger Off
+
 time_div
 byte Time/div sample_rate
-80 = 10 us/div 12.5 MHz
+02 = 10 us/div 12.5 Mhz (???)
 
 Scope setting example: 0E 80 07 29 29 77 75 7F 02 00
-Important bytes are 80 and the last (00)
+Important bytes are 02 and the last (00)
 
 Next, send byte 09 and the 0B:
 09 = reset scope
 0B = waiting for trigger (trigger off, so the data is coming soon)
 
-Then characters from scope are read one at a time until a 44 ("D")
-After this scope sends character 0A, after which it sends 8192 bytes of data.
+Then characters from scope are read one at a time (there will be 64 bytes) until a 44 ("D")
+After this send to scope character 0A, after which it sends 8192 bytes of data.
 Data is read one by one, this data is not used for anything.
 
-Next, send 0C to scope.
-This puts the scope into a state where it will send a 64-character data, and then a reset and new data transmission.
-Byte 0C is sent to a software timer control, to provide the desired number of samples, unit of time.
+Next, send 0C to scope and read 64 characters of data, ignoring it. Then reset
+and initiate new data transmission (09 0B). Byte 0C is sent to a software timer
+control, to provide the desired number of samples, unit of time.
+
+Then reset scope (09 0B). Read charactes from scope one at a time until a 44.
+After that, write 0C to oscilloscope and read 64 characters of data. Data is
+read as byte/channel (eg. byte #62 is for Ch2 and #61 is for Ch1), draw it as
+curve on the screen.
+
+After that, wait for 44, write 0C, read data from 64 characters, draw them on
+the screen, etc.
+
+## Digital Logic Analyzer mode (10110010 signal sent)
+Setting
+digi_on
+bit
+1 = Digital display mode On
+
+Scope is set up normally and is read 8192 bytes of data.
+Then display a graph of data bits. Drawing begins from first channel in the first
+byte low bit. If the bit is a 1, then draw the high line on the screen, if 0
+then draw low line. This will provide a digital signal on the screen.
+
+# Function generator setting
+
+Function generator setting takes place by means of a single 7 bytes packet.
+
+The command begins with these three bytes: 0E 05 04
+0E = load setting
+80 = stop and reset counting
+04 = number of bytes to send
+
+Then, there will be four control bytes:
+byte 1 = dc_offset
+byte 2 = ampl + 8 * sel_f + 64 * relay_state
+byte 3 = correction + 16 * power_LED
+byte 4 = filter + 8 * enable_sweep
+
+dc_offset
+Waveform offset. Zero level is 7F, -5V offset is 00 and +5V offset is FF.
+
+ampl
+Generator coarse amplitude setting. 3 bits.
+
+sel_f
+Generator frequency range, 3 bits. (this data is not avaliable for setting in
+FPGA now --- these bits are always zero)
+
+relay_state
+Generator output relay mode, 2 bits. (this data is not avaliable for setting in
+FPGA now --- these bits are always zero)
+
+correction
+Tuning of amplitude, +/-5%, 3 bits.
+
+power_LED
+LED mode. 2 bits. 0 = off, 1 = less intense, 2 = brighter.
+
+filter
+Setting frequency and wave shape of the filter, 3 bits.
+
+enable_sweep
+Enables sweep, 1 bit. 1 = sweep, 0 = stop now.
+
+Example
+Use this command for basic generator setting: 0E 05 04 7F 4E 24 0F
+
+## Setting generator waveform
+First send byte 0x04.
+Then, 512 sequencial bytes of waveform data.
+
+## Generator frequency setting
+Send 0E (load setting) 02 13, followed by 19 character SOMETHING (for details see
+the following pages)
+For example, 0E 02 13 00 00 00 00 00 00 00 00 23 D6 E2 53 00 00 A0 86 01 00 00
+
+Finally, transmit 0x06 to the generator, which starts waveform generation.
+
+## Filter setting
+Sweep mode
+(f refers to the starting scan frequency or ending frequency)
+f = 0...50 kHz filter  = 7
+f = 50 kHz ... 150 kHz filter = 6
+f = 150 kHz ... 300 kHz filter = 5
+f = 300 kHz ... 500 kHz filter = 4
+f = 500 kHz ... 700 kHz filter = 2
+f = 700 kHz ... 1000 kHz filter = 1
+
+Sine and triangular wave
+f = 0...50 kHz filter = 7
+f = 50 kHz ... 150 kHz filter = 6
+f = 150 kHz ... 300 kHz filter = 5
+f = 300 kHz ... 400 kHz filter = 3
+f = 400 kHz ... 500 kHz filter = 2
+f = 500 kHz ... 1000 kHz filter = 1
+
+Sin(x)/x wave
+f = 0...50 kz filter = 7
+f = 5 kHz ... 50 kHz filter = 6
+f = 50 kHz ... 500 kHz filter = 1
+
+Square wave
+filter = 0
+
+Library wave
+f = 0...50 kHz filter = 7
+f = 50 kHz...500 kHz filter = 0
+
+DC signal
+filter = 7
+
+# PCSGU250 function generator and frequency sweep setting
+
+## Principle of operation
+In RAM memory there are 512 characters stored that constitute the single waveform
+cycle. Memory address is formed from the 44-bit address counter, taking 9 bits
+from the highest.
+Address counter is increased with CLK clock speeds. CLK is either 12.5MHz (when
+filter <= 5) or 6.25MHz (when filter > 5).
+(Program variable "filter" is controlling digital filter function and sampling
+speed of the FPGA circuit)
+
+Number for incrementing Address Counter is stored in Phase Increment Register,
+which is also 44-bit. This register value is added to the Address Counter value
+on each clock pulse.
+
+# Phase Increment value calculation
+
 
