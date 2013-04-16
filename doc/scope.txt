@@ -104,7 +104,7 @@ bit
 0 = Digital display mode Off
 1 = Digital display mode On
 
-e.g.
+Example:
 This sequence will set scope to its initial state: 0E 80 07 29 29 76 75 7F F8 00
 Volts/div = 1V (ch1 and ch2)
 Time/div = 1ms
@@ -221,8 +221,8 @@ First send byte 0x04.
 Then, 512 sequencial bytes of waveform data.
 
 ## Generator frequency setting
-Send 0E (load setting) 02 13, followed by 19 character SOMETHING (for details see
-the following pages)
+Send 0E (load setting) 02 13, followed by 19 character frequency setting (for
+details see the following pages)
 For example, 0E 02 13 00 00 00 00 00 00 00 00 23 D6 E2 53 00 00 A0 86 01 00 00
 
 Finally, transmit 0x06 to the generator, which starts waveform generation.
@@ -275,6 +275,99 @@ Number for incrementing Address Counter is stored in Phase Increment Register,
 which is also 44-bit. This register value is added to the Address Counter value
 on each clock pulse.
 
-# Phase Increment value calculation
+## Phase Increment value calculation
+For D/A converter (DAC) to output with desired frequency RAM memory address
+should make a "full circle" 0..512 each signal period.
+This is achieved with Address Counter increment with an appropriate value each
+clock pulse.
+That value is stored in the Phase Increment Register.
 
+PHASE INCREMENT = 2^44 * (desired frequency) / (CLK frequency)
+
+Example 1:
+desired frequency = 500 Hz
+sine wave
+filter = 7
+CLK frequency = 6.25 MHz
+PHASE INCREMENT = 2^44 * 500 / 6.25 * 10^6 ~= 1407374883,55328
+~= 00 00 53 E2 D6 23
+
+Example 2:
+desired frequency = 500 Hz
+square wave
+filter = 0
+CLK frequency = 12.6 MHz
+PHASE INCREMENT = 2^44 * 500 / 12.6 * 10^6 ~= 703687441.77664
+~= 00 00 29 F1 6B 11
+
+This integer is sent to the oscilloscope with lowest byte first.
+
+## Operating frequency sweep mode
+Incrementing is currently using custom step.
+Step is stored in the Sweep Increment Register.
+That number is added every 100 us to the Increment Phase Register value.
+In addition, those 100 us pulses increment 32 bit counter. When the counter
+is equal to the Sweep Complete Register value sweep is performed.
+In this case, original Phase Increment Register value is loaded and the
+new round begins.
+
+Sweep Increment is calculated based on the start frequency (f1) and the end
+frequency (f2) using the following formula:
+For filter > 5:
+SWEEP INCREMENT = 2 * 2^64 * (f2 - f1) / (CLK frequency) / (sweep time[sec] * 10000)
+For filter <= 5:
+SWEEP INCREMENT = 2^64 * (f2 - f1) / (CLK frequency) / (sweep time[sec] * 10000)
+
+Example:
+f1 = 1000 Hz
+f2 = 10000 Hz
+filter > 5
+sweep time = 25 sec
+CLK frequency = 6.25 MHz
+
+SWEEP INCREMENT = 2 * 2^64 * 9000 / 6.25 * 10^6 / (25 * 10000) ~= 212506491729.134
+~= 00 00 00 31 7A 5F BB 51
+
+This integer is sent to the oscilloscope with lowest byte first.
+
+## SWEEP COMPLETE registry value calculation
+The register contains sweep steps number for 100 us units when the filter <= 5 and
+200 us units when the filter > 5.
+
+For filter <= 5:
+SWEEP COMPLETE = 10^4 * time
+For filter > 5:
+SWEEP COMPLETE = 10^4 * time / 2
+
+Example:
+sweep time = 25 sec
+filter > 5
+
+SWEEP COMPLETE = 10^4 * 25 / 5 = 125000 = 00 00 01 E8 48
+
+For example, this will set frequency sweep mode in oscilloscope to the linear
+frequency sweep:
+0E 02 13 51 BB 5F 7A 31 00 00 00 47 AC C5 A7 00 00 48 E8 01 00 00
+
+If the frequency sweep is to be logarithmic, SWEEP INCREMENT is calcucated as
+in this formula:
+For filter > 5:
+
+SWEEP INCREMENT = 2 * 2^59 * 9000 / 6.25 * 10^6 / (25 * 10000) ~= 6640827866.53544
+~= 00 00 00 01 8B D2 FD DA
+SWEEP COMPLETE is calcucated using this formula:
+SWEEP COMPLETE= 00 00 00 3D 09 = 10^4 * 25 / 2 / 8 = 15625
+
+In addition, if the second lowest bit in the last transmitted byte in the settings
+is set to 1, the frequency sweep will be logarithmic.
+
+Send the bytes to the oscilloscope as thus:
+0E 02 13 DA FD D2 8B 01 00 00 00 47 AC C5 A7 00 00 09 3D 00 00 02
+
+f1 = 1000 Hz
+f2 = 10000 Hz
+filter > 5
+sweep time = 25 sec
+CLK frequency = 6.25 MHz
+logarithmic frequency sweep
 
