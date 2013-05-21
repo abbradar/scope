@@ -1,0 +1,10 @@
+synatx: regexp
+
+debug$
+Module.symvers$
+modules.order$
+pcsgu250.ko$
+pcsgu250.mod.c$
+\.o$
+.tmp_versions$
+\..*\.cmd$
