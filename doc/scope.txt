@@ -210,8 +210,8 @@ LED mode. 2 bits. 0 = off, 1 = less intense, 2 = brighter.
 filter
 Setting frequency and wave shape of the filter, 3 bits.
 
-enable_sweep
-Enables sweep, 1 bit. 1 = sweep, 0 = stop now.
+enable_generator
+Enables generator, 1 bit. 1 = enable, 0 = stop now.
 
 Example
 Use this command for basic generator setting: 0E 05 04 7F 4E 24 0F
@@ -230,7 +230,7 @@ Finally, transmit 0x06 to the generator, which starts waveform generation.
 ## Filter setting
 Sweep mode
 (f refers to the starting scan frequency or ending frequency)
-f = 0...50 kHz filter  = 7
+f = 0 ... 50 kHz filter  = 7
 f = 50 kHz ... 150 kHz filter = 6
 f = 150 kHz ... 300 kHz filter = 5
 f = 300 kHz ... 500 kHz filter = 4
@@ -238,7 +238,7 @@ f = 500 kHz ... 700 kHz filter = 2
 f = 700 kHz ... 1000 kHz filter = 1
 
 Sine and triangular wave
-f = 0...50 kHz filter = 7
+f = 0 ... 50 kHz filter = 7
 f = 50 kHz ... 150 kHz filter = 6
 f = 150 kHz ... 300 kHz filter = 5
 f = 300 kHz ... 400 kHz filter = 3
@@ -246,7 +246,7 @@ f = 400 kHz ... 500 kHz filter = 2
 f = 500 kHz ... 1000 kHz filter = 1
 
 Sin(x)/x wave
-f = 0...50 kz filter = 7
+f = 0 ... 5 kHz filter = 7
 f = 5 kHz ... 50 kHz filter = 6
 f = 50 kHz ... 500 kHz filter = 1
 
@@ -289,15 +289,15 @@ desired frequency = 500 Hz
 sine wave
 filter = 7
 CLK frequency = 6.25 MHz
-PHASE INCREMENT = 2^44 * 500 / 6.25 * 10^6 ~= 1407374883,55328
+PHASE INCREMENT = 2^44 * 500 / (6.25 * 10^6) ~= 1407374883,55328
 ~= 00 00 53 E2 D6 23
 
 Example 2:
 desired frequency = 500 Hz
 square wave
 filter = 0
-CLK frequency = 12.6 MHz
-PHASE INCREMENT = 2^44 * 500 / 12.6 * 10^6 ~= 703687441.77664
+CLK frequency = 12.5 MHz
+PHASE INCREMENT = 2^44 * 500 / (12.5 * 10^6) ~= 703687441.77664
 ~= 00 00 29 F1 6B 11
 
 This integer is sent to the oscilloscope with lowest byte first.
@@ -325,7 +325,7 @@ filter > 5
 sweep time = 25 sec
 CLK frequency = 6.25 MHz
 
-SWEEP INCREMENT = 2 * 2^64 * 9000 / 6.25 * 10^6 / (25 * 10000) ~= 212506491729.134
+SWEEP INCREMENT = 2 * 2^64 * 9000 / (6.25 * 10^6) / (25 * 10000) ~= 212506491729.134
 ~= 00 00 00 31 7A 5F BB 51
 
 This integer is sent to the oscilloscope with lowest byte first.
@@ -343,7 +343,7 @@ Example:
 sweep time = 25 sec
 filter > 5
 
-SWEEP COMPLETE = 10^4 * 25 / 5 = 125000 = 00 00 01 E8 48
+SWEEP COMPLETE = 10^4 * 25 / 2 = 125000 = 00 00 01 E8 48
 
 For example, this will set frequency sweep mode in oscilloscope to the linear
 frequency sweep:
@@ -351,12 +351,15 @@ frequency sweep:
 
 If the frequency sweep is to be logarithmic, SWEEP INCREMENT is calcucated as
 in this formula:
-For filter > 5:
 
-SWEEP INCREMENT = 2 * 2^59 * 9000 / 6.25 * 10^6 / (25 * 10000) ~= 6640827866.53544
+For filter > 5:
+SWEEP INCREMENT = 2 * 2^59 * 9000 / (6.25 * 10^6) / (25 * 10000) ~= 6640827866.53544
 ~= 00 00 00 01 8B D2 FD DA
+(For logarithmic sweep use 2^59 in the formula)
+
 SWEEP COMPLETE is calcucated using this formula:
-SWEEP COMPLETE= 00 00 00 3D 09 = 10^4 * 25 / 2 / 8 = 15625
+SWEEP COMPLETE = 10^4 * 25 / 2 / 8 = 15625 = 00 00 00 3D 09
+(For logarithmic sweep also divide by 8 in the formula)
 
 In addition, if the second lowest bit in the last transmitted byte in the settings
 is set to 1, the frequency sweep will be logarithmic.
@@ -370,4 +373,3 @@ filter > 5
 sweep time = 25 sec
 CLK frequency = 6.25 MHz
 logarithmic frequency sweep
-

@@ -1,0 +1,5 @@
+digraph pcsgu250_states {
+  start -> firmware_load -> ready;
+  ready -> ready [label="scope_setting"];
+  ready -> ready [label="gen_setting"];
+}
