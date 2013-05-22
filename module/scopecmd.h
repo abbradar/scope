@@ -5,6 +5,9 @@
 
 #define SCOPE_VENDOR_ID 0x10CF
 #define SCOPE_PRODUCT_ID 0x2501
+#define SCOPE_TIMEOUT 1000
+#define SCOPE_FW_TIMEOUT 10000
+
 #define SCOPE_CMD_FW_START "\x08"
 #define SCOPE_CMD_SHUTDOWN "\x13"
 
@@ -20,6 +23,10 @@
 #define GENERATOR_CMD_FREQ_SETTING_0 '\x02'
 #define GENERATOR_CMD_FREQ_SETTING_1 '\x13'
 
+#define SCOPE_SETTINGS_SIZE 10
+#define GENERATOR_SETTINGS_SIZE 7
+#define FREQ_SETTINGS_SIZE 22
+
 #define SCOPE_TRANSIENT_DIV 0x02
 
 struct uint32_char {
@@ -32,7 +39,7 @@ extern const struct uint32_char kTimeDivTable[];
 
 #define SCOPE_CMD_RESET "\x09"
 #define SCOPE_CMD_TRIGGER "\x0B"
-#define SCOPE_TRIGGER_WAITING '\x4E'
+#define SCOPE_TRIGGER_WAIT '\x4E'
 #define SCOPE_TRIGGER_READY '\x44'
 #define SCOPE_CMD_READ "\x0A"
 #define SCOPE_CMD_TRANSIENT_READ "\x0C"

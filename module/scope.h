@@ -90,16 +90,21 @@ struct freq_settings {
 #define GENERATOR_WAVE_SIZE 512
 
 #define IOCTL_MAGIC 0xBB // aBBradar :3
-#define SIO_GET_VERSION _IOR(IOCTL_MAGIC, 1, const char)
+#define SIO_GET_VERSION _IOR(IOCTL_MAGIC, 1, char)
 #define SIO_SCOPE_SET _IOW(IOCTL_MAGIC, 2, struct scope_settings)
 #define SIO_SCOPE_GET _IOR(IOCTL_MAGIC, 3, struct scope_settings)
 #define SIO_GENERATOR_SET _IOW(IOCTL_MAGIC, 4, struct generator_settings)
 #define SIO_GENERATOR_GET _IOR(IOCTL_MAGIC, 5, struct generator_settings)
 #define SIO_FREQ_SET _IOW(IOCTL_MAGIC, 6, struct freq_settings)
 #define SIO_FREQ_GET _IOR(IOCTL_MAGIC, 7, struct freq_settings)
-#define SIO_WAVEFORM_SET _IOW(IOCTL_MAGIC, 8, const char)
-#define SIO_STATUS _IOR(IOCTL_MAGIC, 9, enum scope_state)
-#define SIO_TRIGGER _IO(IOCTL_MAGIC, 10)
+#define SIO_WAVEFORM_SET _IOW(IOCTL_MAGIC, 8, const unsigned char)
+#define SIO_WAVEFORM_GET _IOR(IOCTL_MAGIC, 9, unsigned char)
+#define SIO_STATE _IOR(IOCTL_MAGIC, 10, enum scope_state)
+#define SIO_TRIGGER _IO(IOCTL_MAGIC, 11)
+#define SIO_TIMEDIV_SIZE _IOR(IOCTL_MAGIC, 12, size_t)
+#define SIO_TIMEDIV _IOR(IOCTL_MAGIC, 13, __u32)
+#define SIO_VOLTDIV_SIZE _IOR(IOCTL_MAGIC, 14, size_t)
+#define SIO_VOLTDIV _IOR(IOCTL_MAGIC, 15, __u32)
 
 #ifdef __cplusplus
 }

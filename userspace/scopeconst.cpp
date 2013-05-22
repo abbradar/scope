@@ -1,12 +1,8 @@
-typedef struct {
-  filter_type_t k;
-  uint32_char_t *v;
-} filter_row_t;
+#include <cstring>
+#include "scopeconst.h"
 
-extern const filter_row_t kFilterTable[];
-
-const filter_row_t kFilterTable[] = {
-  {SWEEP_WAVE, (uint32_char_t[]){
+const filter_row kFilterTable[] = {
+  {SWEEP_WAVE, (uint32_char[]){
                  {50000, 7},
                  {150000, 6},
                  {300000, 5},
@@ -15,7 +11,7 @@ const filter_row_t kFilterTable[] = {
                  {1000000, 1},
                  {0, 0}
                }},
-  {SINE_WAVE, (uint32_char_t[]){
+  {SINE_WAVE, (uint32_char[]){
                 {50000, 7},
                 {150000, 6},
                 {300000, 5},
@@ -24,24 +20,24 @@ const filter_row_t kFilterTable[] = {
                 {1000000, 1},
                 {0, 0}
               }},
-  {SINE_DIVX_WAVE, (uint32_char_t[]){
+  {SINE_DIVX_WAVE, (uint32_char[]){
                      {5000, 7},
                      {50000, 6},
                      {500000, 1},
                      {0, 0}
                    }},
-  {SQUARE_WAVE, (uint32_char_t[]){
+  {SQUARE_WAVE, (uint32_char[]){
                   {1000000, 0},
                   {0, 0}
                 }},
-  {DC_WAVE, (uint32_char_t[]){
+  {DC_WAVE, (uint32_char[]){
               {1000000, 7},
               {0, 0}
             }},
-  {OTHER_WAVE, (uint32_char_t[]){
+  {OTHER_WAVE, (uint32_char[]){
                  {50000, 7},
                  {500000, 0},
                  {0, 0}
                }},
-  {0, NULL}
+  {(filter_type)-1, NULL}
 };
