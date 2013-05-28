@@ -380,12 +380,12 @@ void MainWindow::updateFilter()
     Q_ASSERT(row->v);
     const uint32_char *i;
     for (i = row->v; i->k; ++i) {
-        if (i->k >= freq_set.start_freq) break;
+        if (i->k >= freq_set.end_freq) break;
     }
     if (!i->k) {
         --i;
         freq_set.start_freq = i->k;
-        ui->startFreqDoubleSpinBox->setValue((double)i->k / 1000);
+        ui->endFreqDoubleSpinBox->setValue((double)i->k / 1000);
         // we will get called from there
         return;
     }
@@ -557,7 +557,6 @@ void MainWindow::on_startFreqDoubleSpinBox_valueChanged(double arg1)
 {
     if (freq_set.start_freq == arg1 * 1000 || !update_settings) return;
     freq_set.start_freq = arg1 * 1000;
-    updateFilter();
     updateFreq();
 }
 
@@ -565,6 +564,7 @@ void MainWindow::on_endFreqDoubleSpinBox_valueChanged(double arg1)
 {
     if (freq_set.end_freq == arg1 * 1000 || !update_settings) return;
     freq_set.end_freq = arg1 * 1000;
+    updateFilter();
     updateFreq();
 }
 

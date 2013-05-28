@@ -206,11 +206,6 @@
            </property>
            <item>
             <property name="text">
-             <string>Выкл</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
              <string>Вверх</string>
             </property>
            </item>

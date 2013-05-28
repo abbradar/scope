@@ -9,3 +9,15 @@ pcsgu250.mod.c$
 .tmp_versions$
 \..*\.cmd$
 ^build-userspace
+\.log$
+\.blg$
+\.bbl$
+\.fdb_latexmk$
+\.pdf$
+\.synctex\.gz$
+\.run\.xml$
+\.toc$
+\.fls$
+\.aux$
+#.*#$
+\.user$
