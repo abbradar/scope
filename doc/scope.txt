@@ -178,7 +178,7 @@ Function generator setting takes place by means of a single 7 bytes packet.
 
 The command begins with these three bytes: 0E 05 04
 0E = load setting
-80 = stop and reset counting
+05 = set generator settings
 04 = number of bytes to send
 
 Then, there will be four control bytes:
