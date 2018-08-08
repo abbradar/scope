@@ -11,6 +11,7 @@
 #include <linux/kthread.h>
 #include <linux/spinlock.h>
 #include <linux/string.h>
+#include <linux/uaccess.h>
 #include <linux/wait.h>
 #include <asm/uaccess.h>
 #include "scopecmd.h"
