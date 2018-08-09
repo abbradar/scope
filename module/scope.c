@@ -90,7 +90,7 @@ static int scope_release(struct inode *inode, struct file *file) {
   struct scope_data *dev = file->private_data;
   if (!dev) return -ENODEV;
 
-  mutex_lock(&dev->io_mutex);
+  mutex_lock_killable(&dev->io_mutex);
   if (dev->interface)
     usb_autopm_put_interface(dev->interface);
   mutex_unlock(&dev->io_mutex);
@@ -120,7 +120,7 @@ static int scope_send(struct scope_data *dev, const char *cmd,
   if (!buff) return -ENOMEM;
   memcpy(buff, cmd, count);
   int errors = 0;
-  mutex_lock(&dev->io_mutex);
+  mutex_lock_killable(&dev->io_mutex);
   if (!dev->interface) {
     mutex_unlock(&dev->io_mutex);
     return -ENODEV;
@@ -635,7 +635,7 @@ static void scope_trigger_callback(struct scope_data *dev) {
 
 static long scope_io_trigger(struct scope_data *dev) {
   unsigned long flags;
-  mutex_lock(&dev->read_mutex);
+  mutex_lock_killable(&dev->read_mutex);
   spin_lock_irqsave(&dev->state_lock, flags);
   enum scope_state state = dev->state;
   if (state & SCOPE_READY) {
@@ -817,7 +817,10 @@ static void scope_disconnect(struct usb_interface *interface) {
   usb_kill_anchored_urbs(&dev->in_anchor);
   usb_kill_anchored_urbs(&dev->out_anchor);
 
-  mutex_lock(&dev->io_mutex);
+  // Note: when doing rmmod quickly after insmod, a race condition causes this code to wait for the lock forever so it hangs until the next reboot.
+  // Changed this to use mutex_lock_killable so at least the user can kill the userspace process waiting for the driver.
+  // Even though this is not a permanent fix, it makes the issue less annoying because it removes the need for a full system restart when this happens.
+  mutex_lock_killable(&dev->io_mutex);
   dev->interface = NULL;
   mutex_unlock(&dev->io_mutex);
 
@@ -996,8 +999,7 @@ static void scope_draw_down(struct scope_data *dev) {
 
 static int scope_pre_reset(struct usb_interface *intf) {
 	struct scope_data *dev = usb_get_intfdata(intf);
-  
-  mutex_lock(&dev->io_mutex);
+  mutex_lock_killable(&dev->io_mutex);
   scope_draw_down(dev);
   return 0;
 }
