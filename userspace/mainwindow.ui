@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>Scope</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QGridLayout" name="gridLayout_5">
@@ -30,7 +30,7 @@
       <item row="1" column="0">
        <widget class="QGroupBox" name="groupBox">
         <property name="title">
-         <string>Канал 1</string>
+         <string>Channel 1</string>
         </property>
         <layout class="QGridLayout" name="gridLayout">
          <item row="0" column="0" rowspan="2">
@@ -55,7 +55,7 @@
          <item row="0" column="1">
           <widget class="QLabel" name="label">
            <property name="text">
-            <string>Разрешение: (мВ)</string>
+            <string>Resolution: (mV)</string>
            </property>
           </widget>
          </item>
@@ -84,7 +84,7 @@
          <item row="1" column="1">
           <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>Соединение:</string>
+            <string>Connection:</string>
            </property>
           </widget>
          </item>
@@ -110,13 +110,13 @@
       <item row="1" column="2">
        <widget class="QGroupBox" name="groupBox_2">
         <property name="title">
-         <string>Канал 2</string>
+         <string>Channel 2</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_2">
          <item row="1" column="1">
           <widget class="QLabel" name="label_4">
            <property name="text">
-            <string>Соединение:</string>
+            <string>Connection:</string>
            </property>
           </widget>
          </item>
@@ -167,7 +167,7 @@
          <item row="0" column="1">
           <widget class="QLabel" name="label_3">
            <property name="text">
-            <string>Разрешение: (мВ)</string>
+            <string>Resolution: (mV)</string>
            </property>
           </widget>
          </item>
@@ -196,7 +196,7 @@
          </sizepolicy>
         </property>
         <property name="title">
-         <string>Триггер</string>
+         <string>Trigger</string>
         </property>
         <layout class="QGridLayout" name="gridLayout_9">
          <item row="2" column="2">
@@ -206,12 +206,12 @@
            </property>
            <item>
             <property name="text">
-             <string>Вверх</string>
+             <string>Up</string>
             </property>
            </item>
            <item>
             <property name="text">
-             <string>Вниз</string>
+             <string>Down</string>
             </property>
            </item>
           </widget>
@@ -219,14 +219,14 @@
          <item row="2" column="1">
           <widget class="QLabel" name="label_17">
            <property name="text">
-            <string>Направление:</string>
+            <string>Direction:</string>
            </property>
           </widget>
          </item>
          <item row="3" column="1">
           <widget class="QLabel" name="label_18">
            <property name="text">
-            <string>Канал:</string>
+            <string>Channel:</string>
            </property>
           </widget>
          </item>
@@ -247,7 +247,7 @@
          <item row="1" column="1" colspan="2">
           <widget class="QCheckBox" name="trgCheckBox">
            <property name="text">
-            <string>Включён</string>
+            <string>Enabled</string>
            </property>
           </widget>
          </item>
@@ -281,7 +281,7 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string>Осциллограф</string>
+       <string>Oscilloscope</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="1">
@@ -290,21 +290,21 @@
        <item row="0" column="0">
         <widget class="QLabel" name="label_7">
          <property name="text">
-          <string>Частота: (кГц)</string>
+          <string>Frequency: (kHz)</string>
          </property>
         </widget>
        </item>
        <item row="3" column="0" colspan="2">
         <widget class="QCheckBox" name="digitalCheckBox">
          <property name="text">
-          <string>Цифровой режим</string>
+          <string>Digital mode</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0">
         <widget class="QLabel" name="label_5">
          <property name="text">
-          <string>Светодиод:</string>
+          <string>LED:</string>
          </property>
         </widget>
        </item>
@@ -312,17 +312,17 @@
         <widget class="QComboBox" name="ledComboBox">
          <item>
           <property name="text">
-           <string>Выкл</string>
+           <string>Off</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Слабый</string>
+           <string>Weak</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Сильный</string>
+           <string>Strong</string>
           </property>
          </item>
         </widget>
@@ -339,7 +339,7 @@
        </sizepolicy>
       </property>
       <property name="title">
-       <string>Генератор</string>
+       <string>Generator</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_8">
        <item row="6" column="2">
@@ -367,14 +367,14 @@
           </sizepolicy>
          </property>
          <property name="text">
-          <string>Включён</string>
+          <string>Enabled</string>
          </property>
         </widget>
        </item>
        <item row="1" column="0" colspan="3">
         <widget class="QPushButton" name="genLoadPushButton">
          <property name="text">
-          <string>Загрузить волну</string>
+          <string>Load wave</string>
          </property>
         </widget>
        </item>
@@ -391,7 +391,7 @@
        <item row="3" column="0">
         <widget class="QLabel" name="label_8">
          <property name="text">
-          <string>Тип волны:</string>
+          <string>Wave Type:</string>
          </property>
         </widget>
        </item>
@@ -399,7 +399,7 @@
         <widget class="QComboBox" name="waveComboBox">
          <item>
           <property name="text">
-           <string>Гребёнка</string>
+           <string>Triangle</string>
           </property>
          </item>
          <item>
@@ -414,17 +414,17 @@
          </item>
          <item>
           <property name="text">
-           <string>Прямоугольная</string>
+           <string>Square</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Константа</string>
+           <string>Constant</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Другое</string>
+           <string>Other</string>
           </property>
          </item>
         </widget>
@@ -432,14 +432,14 @@
        <item row="5" column="0" colspan="2">
         <widget class="QLabel" name="label_10">
          <property name="text">
-          <string>Конечная частота: (кГц)</string>
+          <string>Final frequency: (kHz)</string>
          </property>
         </widget>
        </item>
        <item row="4" column="0" colspan="2">
         <widget class="QLabel" name="label_9">
          <property name="text">
-          <string>Начальная частота: (кГц)</string>
+          <string>Starting frequency: (kHz)</string>
          </property>
         </widget>
        </item>
@@ -456,7 +456,7 @@
        <item row="6" column="0">
         <widget class="QLabel" name="label_11">
          <property name="text">
-          <string>Время спуска: (сек)</string>
+          <string>Descent time: (sec)</string>
          </property>
         </widget>
        </item>
@@ -513,7 +513,7 @@
          <item row="0" column="0" colspan="3">
           <widget class="QLabel" name="label_14">
            <property name="text">
-            <string>Отступ</string>
+            <string>Offset</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -523,7 +523,7 @@
          <item row="0" column="3" colspan="4">
           <widget class="QLabel" name="label_15">
            <property name="text">
-            <string>Амплитуда</string>
+            <string>Amplitude</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -533,7 +533,7 @@
          <item row="0" column="7" colspan="3">
           <widget class="QLabel" name="label_16">
            <property name="text">
-            <string>Коррекция</string>
+            <string>Correction</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -639,7 +639,7 @@
        <item row="7" column="0">
         <widget class="QLabel" name="label_6">
          <property name="text">
-          <string>Тип спуска:</string>
+          <string>Descent type:</string>
          </property>
         </widget>
        </item>

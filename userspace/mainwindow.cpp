@@ -54,62 +54,62 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QString fname = QFileDialog::getOpenFileName(this, "Открыть устройство", "/dev", "Все файлы (*)");
+    QString fname = QFileDialog::getOpenFileName(this, "Open device file - make sure you have read permissions", "/dev", "All files (*)");
     if (fname.isNull()) exit(EXIT_SUCCESS);
     this->dev_fd = ::open(fname.toUtf8().constData(), O_RDONLY);
     if (this->dev_fd < 0) {
-        failOpen(errno, "Ошибка при открытии файла.");
+        failOpen(errno, "Error opening file.");
         exit(EXIT_FAILURE);
     }
     size_t size;
     int rv = ::ioctl(dev_fd, SIO_TIMEDIV_SIZE, &size);
     if (rv) {
-        failOpen(errno, "Ошибка при запросе размера таблицы частот.");
+        failOpen(errno, "Error while querying the size of the frequency table.");
         exit(EXIT_FAILURE);
     }
     time_div.resize(size);
     rv = ::ioctl(dev_fd, SIO_TIMEDIV, time_div.data());
     if (rv) {
-        failOpen(errno, "Ошибка при чтении таблицы частот.");
+        failOpen(errno, "Error reading the frequency table.");
         exit(EXIT_FAILURE);
     }
     rv = ::ioctl(dev_fd, SIO_VOLTDIV_SIZE, &size);
     if (rv) {
-        failOpen(errno, "Ошибка при запросе размера таблицы разрешений.");
+        failOpen(errno, "Error while requesting the size of the permission table.");
         exit(EXIT_FAILURE);
     }
     volt_div.resize(size);
     rv = ::ioctl(dev_fd, SIO_VOLTDIV, volt_div.data());
     if (rv) {
-        failOpen(errno, "Ошибка при чтении таблицы разрешений.");
+        failOpen(errno, "Error reading the permission table.");
         exit(EXIT_FAILURE);
     }
     wave.resize(GENERATOR_WAVE_SIZE);
     rv = ::ioctl(dev_fd, SIO_WAVEFORM_GET, wave.data());
     if (rv) {
-        failOpen(errno, "Ошибка при чтении текущей волны.");
+        failOpen(errno, "Error reading current waveform.");
         exit(EXIT_FAILURE);
     }
     rv = ::ioctl(dev_fd, SIO_SCOPE_GET, &scope_set);
     if (rv) {
-        failOpen(errno, "Ошибка при чтении настроек осциллографа.");
+        failOpen(errno, "Error reading the oscilloscope settings.");
         exit(EXIT_FAILURE);
     }
     rv = ::ioctl(dev_fd, SIO_GENERATOR_GET, &gen_set);
     if (rv) {
-        failOpen(errno, "Ошибка при чтении настроек генератора.");
+        failOpen(errno, "Error reading generator settings.");
         exit(EXIT_FAILURE);
     }
     rv = ::ioctl(dev_fd, SIO_FREQ_GET, &freq_set);
     if (rv) {
-        failOpen(errno, "Ошибка при чтении настроек частоты генератора.");
+        failOpen(errno, "Error reading the generator frequency settings.");
         exit(EXIT_FAILURE);
     }
 
     for (size_t ch = 0; ch < 2; ++ch)
         ui->graphWidget->addGraph();
-    ui->graphWidget->xAxis->setLabel("время");
-    ui->graphWidget->yAxis->setLabel("уровень");
+    ui->graphWidget->xAxis->setLabel("time");
+    ui->graphWidget->yAxis->setLabel("level");
     size = ((scope_set.time_div == SCOPE_TRANSIENT_TIME) ?
                 SCOPE_TRANSIENT_SIZE : SCOPE_DATA_SIZE) / 2;
     ui->graphWidget->xAxis->setRange(0, size * num_packets);
@@ -121,8 +121,8 @@ MainWindow::MainWindow(QWidget *parent) :
     wave_x.resize(GENERATOR_WAVE_SIZE);
     for (size_t i = 0; i < GENERATOR_WAVE_SIZE; ++i) wave_x[i] = i;
     ui->genGraphWidget->addGraph();
-    ui->genGraphWidget->xAxis->setLabel("время");
-    ui->genGraphWidget->yAxis->setLabel("уровень");
+    ui->genGraphWidget->xAxis->setLabel("time");
+    ui->genGraphWidget->yAxis->setLabel("level");
     ui->genGraphWidget->xAxis->setRange(0, GENERATOR_WAVE_SIZE);
     ui->genGraphWidget->yAxis->setRange(0, 256);
     wave_y.resize(GENERATOR_WAVE_SIZE);
@@ -140,7 +140,7 @@ MainWindow::MainWindow(QWidget *parent) :
     foreach (const int &a, time_div) {
         timeDivStr.append(QString::number((double)a / 1000));
     }
-    timeDivStr.append("Нестационарный");
+    timeDivStr.append("Unsteady");
     ui->voltComboBox_1->addItems(voltDivStr);
     ui->voltComboBox_1->setCurrentIndex(volt_div.indexOf(scope_set.channel[0].volt_div));
     ui->couplingComboBox_1->setCurrentIndex(coupling_to_int(scope_set.channel[0].coupling));
@@ -254,14 +254,14 @@ void MainWindow::dataLoaded(const QVector<unsigned char> *data, bool *done,
 
 void MainWindow::devFailed(int error)
 {
-    failOpen(error, "Ошибка при работе с устройством.");
+    failOpen(error, "Error while working with the device.");
     QApplication::exit(EXIT_FAILURE);
 }
 
 void MainWindow::failOpen(int error, const QString &msg)
 {
     QMessageBox msgBox(this);
-    msgBox.setWindowTitle("Ошибка устройства");
+    msgBox.setWindowTitle("Device error");
     msgBox.setText(msg);
     msgBox.setInformativeText(strerror(error));
     msgBox.setIcon(QMessageBox::Critical);
@@ -270,8 +270,8 @@ void MainWindow::failOpen(int error, const QString &msg)
 
 void MainWindow::showGenLoadError(const QString &text) {
     QMessageBox msgBox(this);
-    msgBox.setWindowTitle("Ошибка чтения");
-    msgBox.setText("Ошибка чтения файла волны");
+    msgBox.setWindowTitle("Read error");
+    msgBox.setText("Wave file read error");
     msgBox.setInformativeText(text);
     msgBox.setIcon(QMessageBox::Critical);
     msgBox.exec();
@@ -283,7 +283,7 @@ void MainWindow::updateScope()
     int rv = ::ioctl(dev_fd, SIO_SCOPE_SET, &scope_set);
     dev_mutex.unlock();
     if (rv) {
-        failOpen(errno, "Ошибка при установке параметров осциллографа");
+        failOpen(errno, "Error setting oscilloscope parameters");
         QApplication::exit(EXIT_FAILURE);
     }
     size_t size = ((scope_set.time_div == SCOPE_TRANSIENT_TIME) ?
@@ -303,7 +303,7 @@ void MainWindow::updateGenerator()
     int rv = ::ioctl(dev_fd, SIO_GENERATOR_SET, &gen_set);
     dev_mutex.unlock();
     if (rv) {
-        failOpen(errno, "Ошибка при установке параметров генератора");
+        failOpen(errno, "Error setting generator parameters");
         QApplication::exit(EXIT_FAILURE);
     }
 }
@@ -314,15 +314,15 @@ void MainWindow::updateFreq()
     int rv = ::ioctl(dev_fd, SIO_FREQ_SET, &freq_set);
     dev_mutex.unlock();
     if (rv) {
-        failOpen(errno, "Ошибка при установке параметров частоты генератора");
+        failOpen(errno, "Error setting oscillator frequency parameters");
         QApplication::exit(EXIT_FAILURE);
     }
 }
 
 void MainWindow::on_genLoadPushButton_clicked()
 {
-    QString fname = QFileDialog::getOpenFileName(this, "Открыть волну", "",
-                                                 "Волны (*.gen)");
+    QString fname = QFileDialog::getOpenFileName(this, "Open wave", "",
+                                                 "Waves (* .gen)");
 
     if (fname.isNull()) return;
     QFile file(fname);
@@ -336,7 +336,7 @@ void MainWindow::on_genLoadPushButton_clicked()
         strs += in.readLine().split(",");
     }
     if (strs.size() != GENERATOR_WAVE_SIZE) {
-        showGenLoadError("Неверный формат или количество данных.");
+        showGenLoadError("Invalid format or amount of data.");
         return;
     }
     QVector<unsigned char> wave;
@@ -345,7 +345,7 @@ void MainWindow::on_genLoadPushButton_clicked()
         bool ok;
         int t = strs[i].toInt(&ok);
         if (!ok || t < 0 || t > 255) {
-            showGenLoadError(QString("Ошибка в позиции %1: неверное число").arg(i));
+            showGenLoadError(QString("Error at position %1: invalid number").arg(i));
             return;
         }
         wave[i] = t;
@@ -359,7 +359,7 @@ void MainWindow::on_genLoadPushButton_clicked()
     int rv = ::ioctl(this->dev_fd, SIO_WAVEFORM_SET, wave.data());
     dev_mutex.unlock();
     if (rv) {
-        failOpen(rv, "Ошибка при установке волны.");
+        failOpen(rv, "Error while setting the wave.");
         QApplication::exit(EXIT_FAILURE);
     }
 }
